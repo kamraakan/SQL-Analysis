@@ -1,7 +1,7 @@
 SQL Interview Questions prep:
 https://data36.com/sql-interview-questions-tech-screening-data-analysts/
 
-Let’s say you have two SQL tables: authors and books.
+1) Let’s say you have two SQL tables: authors and books.
 The authors dataset has 1M+ rows; here’s the first six rows:
 
 author_name	book_name
@@ -22,7 +22,7 @@ book_4	29000
 book_5	40000
 book_6	4400
 …	…
-**Create an SQL query that shows the TOP 3 authors who sold the most books in total!**
+1) **Create an SQL query that shows the TOP 3 authors who sold the most books in total!**
 
 select autho_name, sum(sold_copies) as sold_sum
 from authors
@@ -46,7 +46,7 @@ user_id	event_date_time
 …and it has over one billion rows.
 Note: If the event_date_time column’s format doesn’t look familiar, google “epoch timestamp”!
 
-Write an SQL query to find out how many users inserted more than 1000 but less than 2000 images in their presentations!
+2) Write an SQL query to find out how many users inserted more than 1000 but less than 2000 images in their presentations!
 SELECT COUNT(*) FROM
   (SELECT user_id, COUNT(event_date_time) AS image_per_user
   FROM event_log
