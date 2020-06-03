@@ -78,7 +78,7 @@ group by team_name
 order by team_name;
 ```
 
-5) The food table contains nutritional information about items on sale in a restaurant. The number of calories per 100g is given in the energy column. You want to compare the calories in the 5 items with the largest number of calories, to the average number of calories in all items on offer. Create a new column avg_calories with the average over all of the data.
+### 5) The food table contains nutritional information about items on sale in a restaurant. The number of calories per 100g is given in the energy column. You want to compare the calories in the 5 items with the largest number of calories, to the average number of calories in all items on offer. Create a new column avg_calories with the average over all of the data.
 
 Food
 id int
@@ -86,13 +86,12 @@ item text
 energy int
 protein numeric
 
-
-
+```sql 
 select item, energy as calorie, avg(energy) over() as avg_calorie
 from food
 order by energy desc
 limit 5;
-
+```
 
 6) Return a summary of the table match_dates to show the sum of goals per month, using the columns date and goals.
 
