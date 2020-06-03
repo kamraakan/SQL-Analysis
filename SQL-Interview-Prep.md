@@ -1,4 +1,4 @@
-SQL Interview Questions prep:
+# SQL Interview Questions prep:
 https://data36.com/sql-interview-questions-tech-screening-data-analysts/
 
 1) Let’s say you have two SQL tables: authors and books.
@@ -23,7 +23,7 @@ book_5	40000
 book_6	4400
 …	…
 1) **Create an SQL query that shows the TOP 3 authors who sold the most books in total!**
-
+```sql
 select autho_name, sum(sold_copies) as sold_sum
 from authors
 join books 
@@ -31,7 +31,7 @@ on authors.book_name= books.book_name
 group by author_name
 order by sold_sum desc
 limit 3;
-
+```
 **SQL Interview Question #2**
 You work for a startup that makes an online presentation software. You have an event log that records every time a user inserted an image into a presentation. (One user can insert multiple images.) The event_log SQL table looks like this:
 
