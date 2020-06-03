@@ -47,12 +47,13 @@ user_id	event_date_time
 Note: If the event_date_time column’s format doesn’t look familiar, google “epoch timestamp”!
 
 2) Write an SQL query to find out how many users inserted more than 1000 but less than 2000 images in their presentations!
+```sql
 SELECT COUNT(*) FROM
   (SELECT user_id, COUNT(event_date_time) AS image_per_user
   FROM event_log
   GROUP BY user_id) AS image_per_user
 WHERE image_per_user < 2000 AND image_per_user > 1000;
-
+```
 
 3) calaculate partioned average temp for each zip code
 
