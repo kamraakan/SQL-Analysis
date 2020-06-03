@@ -57,12 +57,14 @@ WHERE image_per_user < 2000 AND image_per_user > 1000;
 
 3) calaculate partioned average temp for each zip code
 
+```sql
 select date, zipcode, max temp, avg(temp) over (partition by Zip_code) as zip_avg
 from whether
+```
 
 4) The runs_2016 table contains the team_name and the number of runs scored during the 2016 season. Calculate the number of sixes and fours that were scored by each team.
 
-
+```sql
 select team_name, 
 sum (case when runs_scored = 4 then 1
 else 0 end) as fours,
@@ -74,6 +76,7 @@ from runs_2016
 
 group by team_name
 order by team_name;
+```
 
 5) The food table contains nutritional information about items on sale in a restaurant. The number of calories per 100g is given in the energy column. You want to compare the calories in the 5 items with the largest number of calories, to the average number of calories in all items on offer. Create a new column avg_calories with the average over all of the data.
 
