@@ -99,26 +99,32 @@ id  date        goal
 1   2019-11-17    3
 2   2019-11-18    4
 
+```sql
 select sum(goal), date_part('month', date) as month
 from match_dates
 group by month
 order by month;
+```
 
 7) Which wines are priced under the average price of all wines in the wine_region table?
 
+```sql
 select id 
 from wine_region
 where price < (select avg(price) from wine_region)
 order by id;
+```
 
 8) The wine table gives information about wines stocked in an online wine retailer. Find all of the countries that have an average wine price greater than $15.
 
 
+```sql
 select country
 from wine
 group by country 
 having avg(price)> 15
 order by country
+```
 
 9) The IPL_runs table contains the total runs scored by a player per match. Calculate the total number of runs scored by each player over all matches. Display the TOP 5 scorers.
 
