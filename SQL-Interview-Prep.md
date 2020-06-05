@@ -962,7 +962,24 @@ FROM sub
 WHERE row_num = 1
 ORDER BY date,member_id;
 ```
- ### 77)                     
+ ### 77) A distribution of # days active within a week: Create a table to show how many members are active for 1 day, 2days, 3days,…7days during 01/01-07/01.
+```sql
+ WITH sub AS
+(
+    SELECT DISTINCT date, memberid
+    FROM Luser
+    WHERE date BETWEEN '2019-01-01' AND '2019-01-07'
+    GROUP BY memberid, date
+) ,
+sub1 as(
+    SELECT memberid, COUNT(memberid) as days_active
+    FROM sub
+    GROUP by memberid)
+    
+    SELECT days_active, COUNT(days_active) as count
+    FROM  sub1
+    GROUP BY days_active
+    ORDER BY 1,2;                  
   
 
   
