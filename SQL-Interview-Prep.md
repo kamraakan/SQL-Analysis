@@ -292,7 +292,9 @@ create table countries
  insert into countries values ('usa', chicago)
  insert into countries values ('india', mumbai)
  insert into countries values ('india, delhi)
+ ```
  
+ ``` sql
  select country, city, 'city' + cast(row_number() over (partition by country order by country) as as varchar(10) coulmn sequence) ) 
   from countries
   
@@ -484,9 +486,11 @@ where 3> (Select count(distinct e2.salary)
 from courses
 group by class
 having count(distinct student) >= 5
+```
 
 39) Write a query that shows a company's name, "status" (found in the Companies table), and the number of unique investors in that company. Order by the number of investors from most to fewest. Limit to only companies in the state of New York.
 
+```sql
 SELECT companies.name AS company_name,
        companies.status,
        COUNT(DISTINCT investments.investor_name) AS unqiue_investors
@@ -557,10 +561,13 @@ where datediff( w1.RecordDate, w2.RecordDate) = 1 and w1.Temperature > w2.Temper
 Delete P1
 from person p1, person p2
 where p1.email = P2.email and p1.id >p2.id'
+```
 
 46) A country is big if it has an area of bigger than 3 million square km or a population of more than 25 million.
 
 Write a SQL solution to output big countries' name, population and area.
+
+``` sql
 
 select name, population, area
 from world
@@ -574,16 +581,14 @@ from cinema
 where description != 'boring' and mod(id,2) != 0
 order by rating desc;
 
+```
+
 48)Mary is a teacher in a middle school and she has a table seat storing students' names and their corresponding seat ids.
-
 The column id is continuous increment.
+ Mary wants to change seats for the adjacent students.
  
-
-Mary wants to change seats for the adjacent students.
- 
-
 Can you write a SQL query to output the result for Mary?
-# Write your MySQL query statement below
+```sql
 SELECT (CASE WHEN MOD(id,2)=1 AND id!=(SELECT COUNT(*) FROM seat) THEN id+1
 WHEN MOD(id,2)=0 THEN id-1
 ELSE id END)id, student
@@ -762,9 +767,11 @@ SELECT player_name,
             WHEN height > 70 AND height <= 72 THEN '71-72'
             ELSE 'under 70' END AS height_group
   FROM benn.college_football_players
+  ```
   
   
 63)Write a query that selects all columns from benn.college_football_players and adds an additional column that displays the player's name if that player is a junior or senior.
+```sql
 
 SELECT *,
        CASE WHEN year IN ('JR', 'SR') THEN player_name ELSE NULL END AS upperclass_player_name
@@ -809,8 +816,11 @@ SELECT state,
              COUNT(case when school_name >= 'n'  then player_name else null end) as n_m
              
              from benn.college_football_players;
+
+```
              
  68) Count the number of unique companies (don't double-count companies) and unique acquired companies by state. Do not include results for which there is no state data, and order by the number of acquired companies from highest to lowest.
+ ```sql
                                            
   SELECT state_code, count(distinct(companies.permalink)) AS companies_permalink,
         count(distinct(acquisitions.company_permalink)) AS acquisitions_permalink
@@ -872,6 +882,7 @@ select *
  74)Write a query that separates the `location` field into separate fields for latitude and longitude. You can compare your results against the actual `lat` and `lon` fields in the table.
     select trim (leading '(' from left(location, position(',' in location)-1)) as lat , trim (trailing ')' from right(location, position(',' in location)+1)) as long
  from tutorial.sf_crime_incidents_2014_01;
+ ```
 
  website analysis
 
