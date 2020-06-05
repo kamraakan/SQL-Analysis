@@ -136,7 +136,7 @@ match_id    player_id   player_name         runs
 734004             27         Yuvraj Singh    495
 734010             27         Yuvraj Singh    449
 
-
+```sql
 select sum(runs), player_name
 from ipl_runs
 group by player_name
@@ -532,8 +532,6 @@ Group by request_at
 Order by request_at;
 
 43)Write a SQL query to find all numbers that appear at least three times consecutively.
-
-
 
 SELECT DISTINCT
     l1.Num AS ConsecutiveNums
