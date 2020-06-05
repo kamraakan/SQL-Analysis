@@ -979,8 +979,51 @@ sub1 as(
     SELECT days_active, COUNT(days_active) as count
     FROM  sub1
     GROUP BY days_active
-    ORDER BY 1,2;                  
+    ORDER BY 1,2;    
+
+             
+###76) SQL script for nth highest salary
+/****** Script for SelectTopNRows command from SSMS  ******/
+/****** Analysis for nth highest salary  ******/
+SELECT TOP (1000) [ID]
+      ,[FirstName]
+      ,[LastName]
+      ,[Gender]
+      ,[Salary]
+  FROM [AK ].[dbo].[Employees];
   
+  select FirstName, salary, dense_rank() over(order by salary desc) as rank1
+  from Employees;
+
+  with cte as (select FirstName, salary, dense_rank() over(order by salary desc) as rank1
+  from Employees)
+
+  select *
+  from cte
+  where rank1 = 4;
+
+  select id, salary, firstName from Employees e
+  where  3 = (select count(distinct salary) from employees m  where e.salary  < m.salary);
+
+   select salary as sal from Employees e
+  where  3 = (select count(distinct salary) from employees m  where e.salary  < m.salary);
+
+
+select max(salary) from employees where salary < (select max(salary) from Employees);
+
+select Top 1 salary
+from (select Distinct top 4 salary 
+		from employees
+		order by salary desc) e
+order by salary;
+
+select Distinct top 5 salary
+		from employees
+		order by salary desc;
+
+select Distinct top 5 salary, firstname
+		from employees
+		order by salary desc;
 
   
   
