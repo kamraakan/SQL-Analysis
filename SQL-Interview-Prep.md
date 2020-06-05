@@ -874,7 +874,86 @@ select *
  74)Write a query that separates the `location` field into separate fields for latitude and longitude. You can compare your results against the actual `lat` and `lon` fields in the table.
     select trim (leading '(' from left(location, position(',' in location)-1)) as lat , trim (trailing ')' from right(location, position(',' in location)+1)) as long
  from tutorial.sf_crime_incidents_2014_01;
-                     
+
+ website analysis
+
+```sql
+ CREATE TABLE Lpayment
+    ("date" timestamp,"memberid" varchar(11),"amount" int)
+;
+
+    
+INSERT INTO Lpayment
+    ("date","memberid","amount")
+VALUES
+    ('2019-01-03','A',33.9),
+    ('2019-01-04','C',19.3),
+    ('2019-01-07','A',29.1),
+    ('2019-01-05','B',32.2),
+    ('2019-01-07','C',35.5)
+;
+
+CREATE TABLE Luser
+    ("date" timestamp,"memberid" varchar(11))
+;
+    
+INSERT INTO Luser
+    ("date","memberid")
+VALUES
+    ('2019-01-01','A'),
+    ('2019-01-01','A'),
+    ('2019-01-04','A'),
+    ('2019-01-04','C'),
+    ('2019-01-03','A'),
+    ('2019-01-03','B'),
+    ('2019-01-05','B'),
+    ('2019-01-06','B'),
+    ('2019-01-06','B'),
+    ('2019-01-04','C'),
+    ('2019-01-05','C'),
+    ('2019-01-05','D'),
+    ('2019-01-07','A'),
+    ('2019-01-07','C')
+;
+
+CREATE TABLE Ldate
+    ("date" timestamp)
+;
+    
+INSERT INTO Ldate
+    ("date")
+VALUES
+    ('2019-01-01'),
+    ('2019-01-02'),
+    ('2019-01-03'),
+    ('2019-01-04'),
+    ('2019-01-05'),
+    ('2019-01-06'),
+    ('2019-01-07'),
+    ('2019-01-08')
+;
+
+```
+### 75)Total Revenue & Payers: Create a table to display total revenue & number of buyers on each day
+ 
+ ```sql
+ select date, count(memberid) as number_of_users, sum(amount) as total_revenue
+from Lpayment;
+```
+### 76) Top payers: Create a table to display the top one payer on each day
+```sql
+WITH sub AS
+(
+   SELECT *,
+         ROW_NUMBER() OVER (PARTITION BY date ORDER BY amount DESC) AS row_num
+   FROM Lpayment
+)
+SELECT date, memberid
+FROM sub
+WHERE row_num = 1
+ORDER BY date,member_id;
+```
+ ### 77)                     
   
 
   
