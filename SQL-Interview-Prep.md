@@ -1025,11 +1025,145 @@ select Distinct top 5 salary, firstname
 		from employees
 		order by salary desc;
 
+  ### 77) Add the role_desc from the role table to the player_match table. The player_match and role tables have a matching column.
+
+  -player_match
+match_id    player_id   role_id  
+  335987    1            1    
+
+  --role
+role_id        role_desc       
+  1            Captain   
+
+  select match_id,
+         player_id, 
+        role_id, 
+        role_desc
+    from player_match p
+    inner join role r
+      on p.role_id = r.role_id
+    order by match_id
+
+###78) Combine the team and umpire tables so that every team is matched to every umpire.
+
+--team
+team_id        team_name
+1            Kolkata Knight Riders
+2            Royal Challengers
+3            Chennai Super Kings
+--umpire
+umpire_id    umpire_name     umpire_country
+1            Asad Rauf           6
+2            MR Benson           10
+3            Aleem Dar           6
+
+selct team_name, umpire_name
+    from team
+  /* cross joining the table */
+    cross join umpire
+    order by umpire
+    limit 10;
   
-  
+### 79) The wine table gives information about wines stocked in an online wine retailer. Find all of the countries that have an average wine price greater than $15.
+
+select country
+    from wine
+  group by country
+  having avg(price) > 15 
+  order by country;
+
+/*formatted query 
+SELECT f.species_name,
+        AVG(f.height) AS average_height, AVG(f.diameter) AS average_diameter
+   FROM flora AS f
+  WHERE f.species_name = 'Banksia'
+     OR f.species_name = 'Sheoak'
+     OR f.species_name = 'Wattle'
+  GROUP BY f.species_name, f.observation_date) */
 
 
 
+
+###80) The orange_cap column contains the id of the player who won the orange cap title.
+
+List the season year and the name of the Orange Cap holder.
+
+-season
+season_id    man_of_the_series   orange_cap  purple_cap season_year
+1        32                      100             102         2008
+2        53                      18              61          2009
+3         133                     133             131         2010
+
+--player
+player_id    player_name     country_id
+1            SC Ganguly          1
+2            BB McCullum         4
+3            RT Ponting          5
+
+select season_year, player_name
+    from season 
+  Left  Join player
+      on season.orange_cap = player.player_id
+  order by season_year;
+
+### 81)The structure of the employees table is shown. Complete the query to determine which employees are also managers.
+
+select  first_name
+    from employees e
+  (where employee id in (select manager_id from employees m));
+
+### 82) The cricketers table lists details of a few players.
+
+Which country has players with a combined weight that is greater than 300 kg?
+
+--cricketers
+name            weight  age     height  country_name
+Jimmy Neesham        80   29        187  New Zealand
+Virat Kohli         72   30        175  India
+Rishabh Pant        62   21        170  India
+
+select country_name, 
+       sum(weight)
+    from crickters 
+  group by country_name
+  having sum(weight) > 300;
+
+### 83) The IPL_runs table contains the total runs scored by a player per match. Calculate the total number of runs scored by each player over all matches. Display the TOP 5 scorers.
+
+--IPL_runs
+match_id    player_id   player_name         runs    
+549337            304         F du Plessis    417
+549323            304         F du Plessis    410
+...
+734004             27         Yuvraj Singh    495
+734010             27         Yuvraj Singh    449
+
+SELECT IPL_runs.player_id,
+	   sum(runs)
+FROM IPL_runs
+GROUP BY player_id
+ORDER BY sum(runs) desc
+LIMIT 5;
+
+### 84) Extract the names of cities that start with ('A', 'E', 'I', 'O', 'U'). Your results should not contain duplicates.
+
+select name
+    from city 
+  where left(name, 1) in ('A', 'E', 'I', 'O', 'U')
+  order by name;
+
+### 85) Include a subquery in the WHERE clause to identify rows where the win_margin is greater than the average win_margin, from the match dataset.
+
+select match_id, win_margin
+    from match
+  where 
+    win_margin > (select avg(win_margin)from match)
+  order by win_margin
+  limit 10;
+
+### 86) The sentence "Movies, TV, Series" is delimited using a comma. Split the sentence and return the 2nd part.
+
+select split_part("Movies, TV, Series" , ',', 2) as new_string;
 
 
 
