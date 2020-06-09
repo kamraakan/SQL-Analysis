@@ -1165,6 +1165,55 @@ select match_id, win_margin
 
 select split_part("Movies, TV, Series" , ',', 2) as new_string;
 
+### 87) select all records where the first letter of the City is an "a" or a "c" or an "s".
+  
+  select * 
+      from city
+    Where name like '[acs]%' 
+
+### 88) Select all records where the first letter of the City is NOT an "a" or a "c" or an "f".
+
+  select *
+      from city
+    where name like '[^acs]%'
+
+### 89) Determine the total number of sixes scored at each venue during all IPL matches in 2015. A six is awarded when runs_scored = 6.
+
+select v.name, count(r.runs_scored)
+    from matches_2015 m
+    left join venue v
+      on v.venue_id = m.venue_id
+    Left join batsman_scored r
+    on m.match_id = r.match_id
+  where run_scored = 6
+  Group by v.name
+  order by coun(r.runs_scored);
+
+### 90) The wine_region table gives a list of all wines offered by a restaurant. The pairing table lists the recommended food items for those wines. You want to try all wine styles with all food items. Join the two tables appropriately to create a full list of all of the combinations that you would need to try.
+
+select w.style, p.item
+    from wine_region w
+  cross join pairing p
+  order by style;
+
+### 91) The favorite shows of a small group of subscribers are recorded in the favorite table. The titles of the shows were not entered consistently. Create a list of all users whose favorite show is "You".
+
+select *
+    from table
+  where lower(title) = 'you';
+
+### 92) The accounts table contains an unique user id and an account code. Extract part of the code starting at position 3 through to position 6. The extracted code part should have length 4.
+
+select user_id, substring(code, 3, 4) as code_part
+    from accounts;
+
+### 93) A person is born on 4 December 1988 at 8 a.m. Calculate how old the person is in days and hours on the 2nd of April 2020 at 3 p.m.
+
+select timestamp '2020-04-02 15:00:00' - timestamp '1988-12-04 08:00:00' as age;
+
+
+
+
 
 
 
