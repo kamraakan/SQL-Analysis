@@ -1212,6 +1212,88 @@ select user_id, substring(code, 3, 4) as code_part
 select timestamp '2020-04-02 15:00:00' - timestamp '1988-12-04 08:00:00' as age;
 
 
+### 94) Calculate the average comments for the users with >= 2 posts, and each post has comments greater or equal to 40
+
+name	posts	comments
+u1	page1	90
+u1	page2	50
+u1	page3	40
+u2	page2	55
+u2	page4	45
+u4	page4	30
+u4	page3	40
+u3	page2	100
+
+
+create table comments ( name varchar (80) primary key
+                        posts varchar(80) 
+                        comments int                           
+                        );
+
+INSERT INTO comments VALUES ('u1', 'page1', '90');
+INSERT INTO comments VALUES ('u1', 'page2', '50');
+INSERT INTO comments VALUES ('u1', 'page3', '40');
+INSERT INTO comments VALUES ('u2', 'page2', '55');
+INSERT INTO comments VALUES ('u2', 'page4', '45');
+INSERT INTO comments VALUES ('u4', 'page4', '30');
+INSERT INTO comments VALUES ('u4', 'page3', '40');
+INSERT INTO comments VALUES ('u3', 'page2', '100');
+
+select round(avg(comments),2), c.name
+from comments c
+join (select count(posts), name
+          from comments
+      where comments >= 40
+      group by name
+      having count(distinct posts) >= 2) as sub
+on c.name = sub.name
+group by c.name
+
+### 95) What is the distribution of comments?
+
+table: content_id | content_type (comment/ post) | target_id
+
+If it is comment，target_id is the userid who posts it.
+
+If it is post, then target_id is NULL.
+
+(select count(target_id) as count, content_id
+    from comments
+  where content_type = 'comments'
+  group by content_id) a
+
+  select count, count(count) as fre
+      from 
+      (select count(target_id) as count, content_id
+    from comments
+  where content_type = 'comments'
+  group by content_id
+        ) as a
+    group by count ;
+
+
+### 95) Now what if content_type becomes {comment, video, photo, article}，what is the comment distribution for each content type?
+
+select count(cnt) as freq, cnt, content_type
+    from 
+    (
+        select count(target_id) as cnt, content_id, content_type
+      from comments
+      group by content_id, content_type
+        ) as a
+group by cnt, content_type
+order by conetnt_type, cnt;
+
+### 96) What can we get some insights from this table?
+
+table: date | u1 | u2 | n_msg
+
+n_msg: the number of messsages between one unique user pair at someday.
+
+/* it represnt user activiies, user closeness */
+
+
+
 
 
 
