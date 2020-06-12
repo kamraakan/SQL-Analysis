@@ -1292,10 +1292,141 @@ n_msg: the number of messsages between one unique user pair at someday.
 
 /* it represnt user activiies, user closeness */
 
+### 97) Write a query about the distribution of number of conversations among users on someday. Before we run any SQL, what is your gut sense that what the distribution will look like? Why?
+
+select count(sub.u1) as freq, conversations
+    from
+        (select U1, count(disticnt u2) as conversations 
+            from message
+          where n_msg > 0 and date = someday
+          group by u1) as sub
+
+  group by conversations 
+  order by conversations
+
+### 98) Write a query that we can find the top partner who sends the most number of messages to each user. And then add a outer query to calculate the following ratio: sum(n_msg_with_top_partners) / sum(n_msg_with_all_contacts)
+
+select cast(sum(n_msg_with_top_partners), float)/ (select sum(n_msg) from message) as ratio
+    from
+    (
+      --top partners
+        select max(sum_n_msg) as n_msg_with_top_partners
+           from
+                ( Select u1, u2, sum(n_msg) as sum_n_msg
+                    from message 
+                  group by u1,u2
+                ) as temp
+    ) as temp2
+
+### 99) sql query to get the complete org hirearchy based on an employee id
+
+create table employees 
+  (
+    employee_id int primary key,
+    employee_name nvarchar(50),
+    manager_id int 
+  )
+  Go
+  Insert into Employees values ('John', NULL)
+Insert into Employees values ('Mark', NULL)
+Insert into Employees values ('Steve', NULL)
+Insert into Employees values ('Tom', NULL)
+Insert into Employees values ('Lara', NULL)
+Insert into Employees values ('Simon', NULL)
+Insert into Employees values ('David', NULL)
+Insert into Employees values ('Ben', NULL)
+Insert into Employees values ('Stacy', NULL)
+Insert into Employees values ('Sam', NULL)
+GO
+
+Update Employees Set ManagerID = 8 Where EmployeeName IN ('Mark', 'Steve', 'Lara')
+Update Employees Set ManagerID = 2 Where EmployeeName IN ('Stacy', 'Simon')
+Update Employees Set ManagerID = 3 Where EmployeeName IN ('Tom')
+Update Employees Set ManagerID = 5 Where EmployeeName IN ('John', 'Sam')
+Update Employees Set ManagerID = 4 Where EmployeeName IN ('David')
+GO
+declare @ID  int;
+@ID = 7;
+
+with employeeCTE as 
+(
+  select employee_id, employee_name, manager_id
+      from employees
+    where employee_id = @ID
+
+  union ALL
+
+  select employees.employee_id, employees.employee_name, employees.manager_id
+      from employees
+    join employeeCTE
+     on employee.employee_id = employeeCTE.manager_id
+
+)
+
+select e.employee_name, isnull(m.employee_name, 'no boss') as manager_name
+    from employeeCTE e
+  Left join employeeCTE m
+  on e.managerID = m.employeeid
+
+### 100) How many article authors have never viewed their own article?
+date	     viewer_id	article_id	author_id
+2017-08-01	123	      456	         789
+2017-08-02	432 	    543	         654
+2017-08-01	789 	    456	         789
+2017-08-03	567	      780	         432
+2017-08-03	567	      780	         432
+2017-08-01	789	      457        	 789
+
+select count(distinct author_id)
+	from article_views1 a
+where a. author_id not in 
+            (
+						  select a.author_id
+							    from article_views1 a
+						    where a.author_id = a.viewer_id );
+### 101) How many members viewed more than one articles on 2017-08-01
+
+select count(distinct viewer_id) as number_of_viewers
+ from (
+         select count(article_id)as num_of_articles, viewer_id
+		        from article_views1 
+          where date = '2017-08-01'
+	        group by viewer_id
+	        having count(article_id) > 1
+		 
+		  ) as a;
+
+###102) count members who ever moved from Microsoft to Google
+
+CREATE TABLE companies (
+    member_id            int,
+    company_name       varchar(80),
+    year_start      int
+);
+
+INSERT INTO companies VALUES (1,'Google', 1990);
+INSERT INTO companies VALUES (1,'Microsoft', 2000);
+INSERT INTO companies VALUES (2,'Microsoft', 2000);
+INSERT INTO companies VALUES (2,'Google', 2001);
+INSERT INTO companies VALUES (3,'Microsoft', 1997);
+INSERT INTO companies VALUES (3,'Google', 1998);
+INSERT INTO companies VALUES (4,'Microsoft', 1997);
+INSERT INTO companies VALUES (4,'LinkedIn', 1998);
+INSERT INTO companies VALUES (4,'Google', 2000);
+
+select count(a.member_id)
+	from companies a
+    join companies b
+	on a.member_id = b.member_id 
+	and a.year_start < b.year_start
+	and a.company_name = 'Microsoft' 
+	and b.company_name = 'google'
 
 
 
 
+
+  
 
 
 
