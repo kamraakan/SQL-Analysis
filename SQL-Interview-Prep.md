@@ -1422,6 +1422,42 @@ select count(a.member_id)
 	and a.company_name = 'Microsoft' 
 	and b.company_name = 'google'
 
+### 103) count members who directly moved from Microsoft to Google? (Microsoft -- Linkedin -- Google doesn't count)
+--Window functions are permitted only in the SELECT list and the ORDER BY clause of the query. They are forbidden elsewhere, such as in GROUP BY, HAVING and WHERE clauses. This is because they logically execute after the processing of those clauses. Also, window functions execute after regular aggregate functions. This means it is valid to include an aggregate function call in the arguments of a window function, but not vice versa.
+
+--lag(value any [, offset integer [, default any ]])	same type as value	returns value evaluated at the row that is offset rows before the current row within the partition; if there is no such row, instead return default. Both offset and default are evaluated with respect to the current row. If omitted, offset defaults to 1 and default to null
+
+select count( distinct sub.member_id)
+    from (select member_id, company_name as current_company, year_start,
+           lag(company_name) over(partition by member_id order by year_start desc) as previous_company_name  
+		  from companies) as sub
+    Where  previous_company_name = 'google'AND current_company = 'microsoft';
+)
+### 104)  Find the number of unique employees per project per month?
+SQL Given tables:
+
+employees(id, unixname, team, role, days_since_started)
+
+projects(id, name,….)
+
+commits(id, file_path, proj_id, auth_id, timestamp)
+
+select count(distinct e.id), p.id,extract('month' from c.timestamp) as month
+    from commits c
+    join employees e
+     on c.auth_id = e.id
+    join projects p
+     on p.id= c.proj_id
+    group by p.id, month ; 
+
+
+
+
+
+  group by project
+
+
+
 
 
 
