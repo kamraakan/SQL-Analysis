@@ -1001,10 +1001,10 @@ SELECT TOP (1000) [ID]
   select *
   from cte
   where rank1 = 4;
-
+--top 4th salary (n-1)
   select id, salary, firstName from Employees e
   where  3 = (select count(distinct salary) from employees m  where e.salary  < m.salary);
-
+--top 4th salary (n-1)
    select salary as sal from Employees e
   where  3 = (select count(distinct salary) from employees m  where e.salary  < m.salary);
 
@@ -1449,27 +1449,762 @@ select count(distinct e.id), p.id,extract('month' from c.timestamp) as month
     join projects p
      on p.id= c.proj_id
     group by p.id, month ; 
+group by project
 
+### 105) Friends
+table friending: action_id, target_id, action（accept, request, unfriend), date, time
 
+Who has most friends?
 
+select user_id, sum(cnt) as num_of_friends
+    from
+          ( select action_id as user_id,
+            sum(case when action = 'accept'then 1
+                when action = 'unfriend' then -1
+                else 0 end) as cnt
 
+             union all
 
-  group by project
+            select target_id as user_id,
+                   sum(case when action = 'accept'then 1
+                when action = 'unfriend' then -1
+                else 0 end) as cnt
 
+  ) as temp
 
+group by user_id
+order by num_of_friends desc
+limit 1;
+ 
+# 106) Calculate the overall friend accept rate within a time range.
 
+table friending: action_id, target_id, action（accept, request, unfriend), date, time
 
+accept rate = sum(accept)/sum(request)
+select sum(cnt)
+ from
+        (Select count(*) as cnt 
+        from request_accepted 
+       group by requester_id, accepter_id) as sub
 
+select 
+    
+    ((Select count(*) , requester_id, accepter_id 
+        from request_accepted 
+       group by requester_id, accepter_id ) as accept_rate)
 
-
-  
-
-
+     /
+       ( (select  sender_id, send_to_id, count(*) as accept
+            from friend_request
+        group by sender_id, send_to_id) as request)
+      
+### 106) In social network like Facebook or Twitter, people send friend requests and accept others' requests as well.
 
  
 
+Table request_accepted
+
++--------------+-------------+------------+
+| requester_id | accepter_id | accept_date|
+|--------------|-------------|------------|
+| 1            | 2           | 2016_06-03 |
+| 1            | 3           | 2016-06-08 |
+| 2            | 3           | 2016-06-08 |
+| 3            | 4           | 2016-06-09 |
++--------------+-------------+------------+
+This table holds the data of friend acceptance, while requester_id and accepter_id both are the id of a person.
+ 
+
+Write a query to find the the people who has most friends and the most friends number under the following rules:
+
+It is guaranteed there is only 1 people having the most friends.
+The friend request could only been accepted once, which mean there is no multiple records with the same requester_id and accepter_id value.
+For the sample data above, the result is:
+
+Result table:
++------+------+
+| id   | num  |
+|------|------|
+| 3    | 3    |
 
 
+ 
+ ````  
+ with a as (select requester_id, accepter_id
+    from request_accepted
 
+UNION ALL
+
+    select accepter_id, requester_id
+    from request_accepted )
+
+select requester_id as id, count(*) as num
+    from a
+    group by requester_id
+    order by count(*) desc
+    limit 1;
+    
+
+###107) n facebook, there is a follow table with two columns: followee, follower.
+
+Please write a sql query to get the amount of each follower’s follower if he/she has one.
+
+For example:
+
++-------------+------------+
+| followee    | follower   |
++-------------+------------+
+|     A       |     B      |
+|     B       |     C      |
+|     B       |     D      |
+|     D       |     E      |
++-------------+------------+
+should output:
++-------------+------------+
+| follower    | num        |
++-------------+------------+
+|     B       |  2         |
+|     D       |  1         |
++-------------+------------+
+Explaination:
+Both B and D exist in the follower list, when as a followee, B's follower is C and D, and D's follower is E. A does not exist in follower list.
+ 
+
+ 
+
+Note:
+Followee would not follow himself/herself in all cases.
+Please display the result in follower's alphabet order.
+````
+select F1.follower, count(distinct F2.flower) as num
+    from follow f1
+  join follow f2 on f1.follower= f2.follower
+  group by f1.follower
+  order by f1.follower;
+  
+###108) Write an SQL query that reports the average experience years of all the employees for each project, rounded to 2 digits.
+
+The query result format is in the following example:
+
+Project table:
++-------------+-------------+
+| project_id  | employee_id |
++-------------+-------------+
+| 1           | 1           |
+| 1           | 2           |
+| 1           | 3           |
+| 2           | 1           |
+| 2           | 4           |
++-------------+-------------+
+
+Employee table:
++-------------+--------+------------------+
+| employee_id | name   | experience_years |
++-------------+--------+------------------+
+| 1           | Khaled | 3                |
+| 2           | Ali    | 2                |
+| 3           | John   | 1                |
+| 4           | Doe    | 2                |
++-------------+--------+------------------+
+
+Result table:
++-------------+---------------+
+| project_id  | average_years |
++-------------+---------------+
+| 1           | 2.00          |
+| 2           | 2.50          |
++-------------+---------------+
+The average experience years for the first project is (3 + 2 + 1) / 3 = 2.00 and for the second project is (3 + 2) / 2 = 2.50
+
+select p.project_id , round(avg(experience_years),2) as average_years
+    from project p
+ Left Join employee e on 
+ p.employee_id = e.employee_id
+ group by project_id ;
+
+ ###109) Write an SQL query that reports all the projects that have the most employees.
+
+The query result format is in the following example:
+
+Project table:
++-------------+-------------+
+| project_id  | employee_id |
++-------------+-------------+
+| 1           | 1           |
+| 1           | 2           |
+| 1           | 3           |
+| 2           | 1           |
+| 2           | 4           |
++-------------+-------------+
+
+Employee table:
++-------------+--------+------------------+
+| employee_id | name   | experience_years |
++-------------+--------+------------------+
+| 1           | Khaled | 3                |
+| 2           | Ali    | 2                |
+| 3           | John   | 1                |
+| 4           | Doe    | 2                |
++-------------+--------+------------------+
+
+Result table:
++-------------+
+| project_id  |
++-------------+
+| 1           |
++-------------+
+The first project has 3 employees while the second one has 2.
+-- this will give the highest count of employees in the project
+select project_id
+    from project
+    group by project_id
+    order by count(employee_id) desc
+    limit 1 
+--- to list all the projects that have the highest count of employees
+
+select project_id
+    from project
+    group by project_id
+    having count(employee_id) = 
+    
+    (select count(employee_id)
+            from Project
+        group by project_id
+        order by count(employee_id) desc
+        limit 1)
+            
+###110)Table: Project
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| project_id  | int     |
+| employee_id | int     |
++-------------+---------+
+(project_id, employee_id) is the primary key of this table.
+employee_id is a foreign key to Employee table.
+Table: Employee
+
++------------------+---------+
+| Column Name      | Type    |
++------------------+---------+
+| employee_id      | int     |
+| name             | varchar |
+| experience_years | int     |
++------------------+---------+
+employee_id is the primary key of this table.
+ 
+
+Write an SQL query that reports the most experienced employees in each project. In case of a tie, report all employees with the maximum number of experience years.
+
+The query result format is in the following example:
+
+Project table:
++-------------+-------------+
+| project_id  | employee_id |
++-------------+-------------+
+| 1           | 1           |
+| 1           | 2           |
+| 1           | 3           |
+| 2           | 1           |
+| 2           | 4           |
++-------------+-------------+
+
+Employee table:
++-------------+--------+------------------+
+| employee_id | name   | experience_years |
++-------------+--------+------------------+
+| 1           | Khaled | 3                |
+| 2           | Ali    | 2                |
+| 3           | John   | 3                |
+| 4           | Doe    | 2                |
++-------------+--------+------------------+
+
+Result table:
++-------------+---------------+
+| project_id  | employee_id   |
++-------------+---------------+
+| 1           | 1             |
+| 1           | 3             |
+| 2           | 1             |
++-------------+---------------+
+Both employees with id 1 and 3 have the most experience among the employees of the first project. For the second project, the employee with id 1 has the most experience. 
+select t.project_id, t.employee_id
+from
+    (select project_id,
+    p.employee_id,
+    rank() over(partition by project_id order by experience_years desc) as r
+    from Project p join Employee e
+    on p.employee_id = e.employee_id) t
+where t.r = 1;
+
+###111)Table: Queries
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| query_name  | varchar |
+| result      | varchar |
+| position    | int     |
+| rating      | int     |
++-------------+---------+
+There is no primary key for this table, it may have duplicate rows.
+This table contains information collected from some queries on a database.
+The position column has a value from 1 to 500.
+The rating column has a value from 1 to 5. Query with rating less than 3 is a poor query.
+ 
+
+We define query quality as:
+
+The average of the ratio between query rating and its position.
+
+We also define poor query percentage as:
+
+The percentage of all queries with rating less than 3.
+
+Write an SQL query to find each query_name, the quality and poor_query_percentage.
+
+Both quality and poor_query_percentage should be rounded to 2 decimal places.
+
+The query result format is in the following example:
+
+Queries table:
++------------+-------------------+----------+--------+
+| query_name | result            | position | rating |
++------------+-------------------+----------+--------+
+| Dog        | Golden Retriever  | 1        | 5      |
+| Dog        | German Shepherd   | 2        | 5      |
+| Dog        | Mule              | 200      | 1      |
+| Cat        | Shirazi           | 5        | 2      |
+| Cat        | Siamese           | 3        | 3      |
+| Cat        | Sphynx            | 7        | 4      |
++------------+-------------------+----------+--------+
+
+Result table:
++------------+---------+-----------------------+
+| query_name | quality | poor_query_percentage |
++------------+---------+-----------------------+
+| Dog        | 2.50    | 33.33                 |
+| Cat        | 0.66    | 33.33                 |
++------------+---------+-----------------------+
+
+Dog queries quality is ((5 / 1) + (5 / 2) + (1 / 200)) / 3 = 2.50
+Dog queries poor_ query_percentage is (1 / 3) * 100 = 33.33
+
+Cat queries quality equals ((2 / 5) + (3 / 3) + (4 / 7)) / 3 = 0.66
+Cat queries poor_ query_percentage is (1 / 3) * 100 = 33.33
+
+select query_name, round(avg(rating/position),2) as quality, 
+
+   round(avg(case when rating <3 then 1 else 0 end)*100,2 ) as poor_query_percentage
+    
+from queries
+group by query_name
+
+###112) Managers with at Least 5 Direct Reports
+
+The Employee table holds all employees including their managers. Every employee has an Id, and there is also a column for the manager Id.
+
++------+----------+-----------+----------+
+|Id    |Name 	  |Department |ManagerId |
++------+----------+-----------+----------+
+|101   |John 	  |A 	      |null      |
+|102   |Dan 	  |A 	      |101       |
+|103   |James 	  |A 	      |101       |
+|104   |Amy 	  |A 	      |101       |
+|105   |Anne 	  |A 	      |101       |
+|106   |Ron 	  |B 	      |101       |
++------+----------+-----------+----------+
+Given the Employee table, write a SQL query that finds out managers with at least 5 direct report. For the above table, your SQL query should return:
+
++-------+
+| Name  |
++-------+
+| John  |
++-------+
+
+select e.name
+    from employee e, employee m
+where e.id = m.managerID
+group by e.name
+having count(*)>=5
+
+
+###113) SQL Schema
+Table: Sales
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| sale_date     | date    |
+| fruit         | enum    | 
+| sold_num      | int     | 
++---------------+---------+
+(sale_date,fruit) is the primary key for this table.
+This table contains the sales of "apples" and "oranges" sold each day.
+ 
+
+Write an SQL query to report the difference between number of apples and oranges sold each day.
+
+Return the result table ordered by sale_date in format ('YYYY-MM-DD').
+
+The query result format is in the following example:
+
+ 
+
+Sales table:
++------------+------------+-------------+
+| sale_date  | fruit      | sold_num    |
++------------+------------+-------------+
+| 2020-05-01 | apples     | 10          |
+| 2020-05-01 | oranges    | 8           |
+| 2020-05-02 | apples     | 15          |
+| 2020-05-02 | oranges    | 15          |
+| 2020-05-03 | apples     | 20          |
+| 2020-05-03 | oranges    | 0           |
+| 2020-05-04 | apples     | 15          |
+| 2020-05-04 | oranges    | 16          |
++------------+------------+-------------+
+
+Result table:
++------------+--------------+
+| sale_date  | diff         |
++------------+--------------+
+| 2020-05-01 | 2            |
+| 2020-05-02 | 0            |
+| 2020-05-03 | 20           |
+| 2020-05-04 | -1           |
++------------+--------------+
+
+Day 2020-05-01, 10 apples and 8 oranges were sold (Difference  10 - 8 = 2).
+Day 2020-05-02, 15 apples and 15 oranges were sold (Difference 15 - 15 = 0).
+Day 2020-05-03, 20 apples and 0 oranges were sold (Difference 20 - 0 = 20).
+Day 2020-05-04, 15 apples and 16 oranges were sold (Difference 15 - 16 = -1).
+
+select sale_date, sum(case when fruit='apples' then sold_num else -sold_num end) as diff
+from sales
+group by sale_date
+
+###114) Select all employee's name and bonus whose bonus is < 1000.
+
+Table:Employee
+
++-------+--------+-----------+--------+
+| empId |  name  | supervisor| salary |
++-------+--------+-----------+--------+
+|   1   | John   |  3        | 1000   |
+|   2   | Dan    |  3        | 2000   |
+|   3   | Brad   |  null     | 4000   |
+|   4   | Thomas |  3        | 4000   |
++-------+--------+-----------+--------+
+empId is the primary key column for this table.
+Table: Bonus
+
++-------+-------+
+| empId | bonus |
++-------+-------+
+| 2     | 500   |
+| 4     | 2000  |
++-------+-------+
+empId is the primary key column for this table.
+Example ouput:
+
++-------+-------+
+| name  | bonus |
++-------+-------+
+| John  | null  |
+| Dan   | 500   |
+| Brad  | null  |
++-------+-------+
+````
+select e.name, bonus
+    from employee e
+    Left join bonus b
+    on e.empID = b.EMPID
+    where bonus <1000 or bonus is null
+
+
+###115) SQL Schema
+Table: Product
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| product_name  | varchar |
++---------------+---------+
+product_id is the primary key for this table.
+product_name is the name of the product.
+ 
+
+Table: Sales
+
++---------------------+---------+
+| Column Name         | Type    |
++---------------------+---------+
+| product_id          | int     |
+| period_start        | varchar |
+| period_end          | date    |
+| average_daily_sales | int     |
++---------------------+---------+
+product_id is the primary key for this table. 
+period_start and period_end indicates the start and end date for sales period, both dates are inclusive.
+The average_daily_sales column holds the average daily sales amount of the items for the period.
+
+Write an SQL query to report the Total sales amount of each item for each year, with corresponding product name, product_id, product_name and report_year.
+
+Dates of the sales years are between 2018 to 2020. Return the result table ordered by product_id and report_year.
+
+The query result format is in the following example:
+
+
+Product table:
++------------+--------------+
+| product_id | product_name |
++------------+--------------+
+| 1          | LC Phone     |
+| 2          | LC T-Shirt   |
+| 3          | LC Keychain  |
++------------+--------------+
+
+Sales table:
++------------+--------------+-------------+---------------------+
+| product_id | period_start | period_end  | average_daily_sales |
++------------+--------------+-------------+---------------------+
+| 1          | 2019-01-25   | 2019-02-28  | 100                 |
+| 2          | 2018-12-01   | 2020-01-01  | 10                  |
+| 3          | 2019-12-01   | 2020-01-31  | 1                   |
++------------+--------------+-------------+---------------------+
+
+Result table:
++------------+--------------+-------------+--------------+
+| product_id | product_name | report_year | total_amount |
++------------+--------------+-------------+--------------+
+| 1          | LC Phone     |    2019     | 3500         |
+| 2          | LC T-Shirt   |    2018     | 310          |
+| 2          | LC T-Shirt   |    2019     | 3650         |
+| 2          | LC T-Shirt   |    2020     | 10           |
+| 3          | LC Keychain  |    2019     | 31           |
+| 3          | LC Keychain  |    2020     | 31           |
++------------+--------------+-------------+--------------+
+LC Phone was sold for the period of 2019-01-25 to 2019-02-28, and there are 35 days for this period. Total amount 35*100 = 3500. 
+LC T-shirt was sold for the period of 2018-12-01 to 2020-01-01, and there are 31, 365, 1 days for years 2018, 2019 and 2020 respectively.
+LC Keychain was sold for the period of 2019-12-01 to 2020-01-31, and there are 31, 31 days for years 2019 and 2020 respectively.
+
+SELECT a.product_id, b.product_name, a.report_year, a.total_amount
+FROM (
+    SELECT product_id, '2018' AS report_year,
+        average_daily_sales * (DATEDIFF(LEAST(period_end, '2018-12-31'), GREATEST(period_start, '2018-01-01'))+1) AS total_amount
+    FROM Sales
+    WHERE YEAR(period_start)=2018 OR YEAR(period_end)=2018
+
+    UNION ALL
+
+    SELECT product_id, '2019' AS report_year,
+        average_daily_sales * (DATEDIFF(LEAST(period_end, '2019-12-31'), GREATEST(period_start, '2019-01-01'))+1) AS total_amount
+    FROM Sales
+    WHERE YEAR(period_start)<=2019 AND YEAR(period_end)>=2019
+
+    UNION ALL
+
+    SELECT product_id, '2020' AS report_year,
+        average_daily_sales * (DATEDIFF(LEAST(period_end, '2020-12-31'), GREATEST(period_start, '2020-01-01'))+1) AS total_amount
+    FROM Sales
+    WHERE YEAR(period_start)=2020 OR YEAR(period_end)=2020
+) a
+LEFT JOIN Product b
+ON a.product_id = b.product_id
+ORDER BY a.product_id, a.report_year
+
+
+###116)SQL Schema
+Table Salaries:
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| company_id    | int     |
+| employee_id   | int     |
+| employee_name | varchar |
+| salary        | int     |
++---------------+---------+
+(company_id, employee_id) is the primary key for this table.
+This table contains the company id, the id, the name and the salary for an employee.
+ 
+
+Write an SQL query to find the salaries of the employees after applying taxes.
+
+The tax rate is calculated for each company based on the following criteria:
+
+0% If the max salary of any employee in the company is less than 1000$.
+24% If the max salary of any employee in the company is in the range [1000, 10000] inclusive.
+49% If the max salary of any employee in the company is greater than 10000$.
+Return the result table in any order. Round the salary to the nearest integer.
+
+The query result format is in the following example:
+
+Salaries table:
++------------+-------------+---------------+--------+
+| company_id | employee_id | employee_name | salary |
++------------+-------------+---------------+--------+
+| 1          | 1           | Tony          | 2000   |
+| 1          | 2           | Pronub        | 21300  |
+| 1          | 3           | Tyrrox        | 10800  |
+| 2          | 1           | Pam           | 300    |
+| 2          | 7           | Bassem        | 450    |
+| 2          | 9           | Hermione      | 700    |
+| 3          | 7           | Bocaben       | 100    |
+| 3          | 2           | Ognjen        | 2200   |
+| 3          | 13          | Nyancat       | 3300   |
+| 3          | 15          | Morninngcat   | 1866   |
++------------+-------------+---------------+--------+
+
+Result table:
++------------+-------------+---------------+--------+
+| company_id | employee_id | employee_name | salary |
++------------+-------------+---------------+--------+
+| 1          | 1           | Tony          | 1020   |
+| 1          | 2           | Pronub        | 10863  |
+| 1          | 3           | Tyrrox        | 5508   |
+| 2          | 1           | Pam           | 300    |
+| 2          | 7           | Bassem        | 450    |
+| 2          | 9           | Hermione      | 700    |
+| 3          | 7           | Bocaben       | 76     |
+| 3          | 2           | Ognjen        | 1672   |
+| 3          | 13          | Nyancat       | 2508   |
+| 3          | 15          | Morninngcat   | 5911   |
++------------+-------------+---------------+--------+
+For company 1, Max salary is 21300. Employees in company 1 have taxes = 49%
+For company 2, Max salary is 700. Employees in company 2 have taxes = 0%
+For company 3, Max salary is 7777. Employees in company 3 have taxes = 24%
+The salary after taxes = salary - (taxes percentage / 100) * salary
+For example, Salary for Morninngcat (3, 15) after taxes = 7777 - 7777 * (24 / 100) = 7777 - 1866.48 = 5910.52, which is rounded to 5911.
+
+select s.company_id, s.employee_id, s.employee_name,
+round(case when x.max_sal between 1000 and 10000 then salary * 0.76
+when x.max_sal > 10000 then salary * 0.51 else salary end, 0) as salary
+from salaries s inner join
+(select company_id, max(salary) max_sal from salaries group by company_id) x
+on s.company_id = x.company_id;
+
+###117) Given two tables as below, write a query to display the comparison result (higher/lower/same) of the average salary of employees in a department to the company's average salary.
+ 
+
+Table: salary
+| id | employee_id | amount | pay_date   |
+|----|-------------|--------|------------|
+| 1  | 1           | 9000   | 2017-03-31 |
+| 2  | 2           | 6000   | 2017-03-31 |
+| 3  | 3           | 10000  | 2017-03-31 |
+| 4  | 1           | 7000   | 2017-02-28 |
+| 5  | 2           | 6000   | 2017-02-28 |
+| 6  | 3           | 8000   | 2017-02-28 |
+ 
+
+The employee_id column refers to the employee_id in the following table employee.
+ 
+
+| employee_id | department_id |
+|-------------|---------------|
+| 1           | 1             |
+| 2           | 2             |
+| 3           | 2             |
+ 
+
+So for the sample data above, the result is:
+ 
+
+| pay_month | department_id | comparison  |
+|-----------|---------------|-------------|
+| 2017-03   | 1             | higher      |
+| 2017-03   | 2             | lower       |
+| 2017-02   | 1             | same        |
+| 2017-02   | 2             | same        |
+ 
+
+Explanation
+ 
+
+In March, the company's average salary is (9000+6000+10000)/3 = 8333.33...
+ 
+
+The average salary for department '1' is 9000, which is the salary of employee_id '1' since there is only one employee in this department. So the comparison result is 'higher' since 9000 > 8333.33 obviously.
+ 
+
+The average salary of department '2' is (6000 + 10000)/2 = 8000, which is the average of employee_id '2' and '3'. So the comparison result is 'lower' since 8000 < 8333.33.
+ 
+
+With he same formula for the average salary comparison in February, the result is 'same' since both the department '1' and '2' have the same average salary with the company, which is 7000.
+
+select department_salary.pay_month, department_id,
+case
+  when department_avg>company_avg then 'higher'
+  when department_avg<company_avg then 'lower'
+  else 'same'
+end as comparison
+from
+(
+  select department_id, avg(amount) as department_avg, date_format(pay_date, '%Y-%m') as pay_month
+  from salary join employee on salary.employee_id = employee.employee_id
+  group by department_id, pay_month
+) as department_salary
+join
+(
+  select avg(amount) as company_avg,  date_format(pay_date, '%Y-%m') as pay_month from salary group by date_format(pay_date, '%Y-%m')
+) as company_salary
+on department_salary.pay_month = company_salary.pay_month
+;
+
+###118) Count the number of times a player has been man of the match during the 2015 season of the Indian Premier League.
+
+select player_name, count(*)
+    from matches_2015 AS M 
+  Join player as p
+  on m.man_of_the_match = p.player_name
+  Group by player_name
+  order by p.player_name
+  limit 10;
+
+###119) You have joined two tables, wine_region and pairing, to find wines that match food items. You now want to clean up your code so that you don't need to repeat the table names throughout. Shorten the table names to w and p.
+
+````
+select w.style, p.item
+  from wine_region as w
+  left join pairing as p
+      on w.id = p.wine_id
+  order by style;
+
+###120) The match table has a win_type field that indicates how a match was won. Create a new categorical variable, win_description that describes the type of win.
+Win Type: 1 = runs, 2 = wickets, 3 = no result, 4 = tie
+--match
+match_id    win_type
+335988            1
+335989            2
+335900            2
+
+select match_id, win_type, 
+      (case when win_type = 1 then 'runs'
+       when win_type = 2 then 'wickets'
+       when win_type = 3 then 'no result'
+      when win_type = 4 then 'tie'
+      else 'undefined' end) as win_description 
+  from match
+  order by match_id
+  limit 10;
+
+###121) Using a subquery as a common expression, return all of the columns from the match table where win_margin is greater than 20 and the match_winner is equal to 1. Limit the results to 10 rows.
+
+with subquery as 
+              (select * 
+              from match 
+              where win_margin > 20)
+
+select match_id, win_margin
+    from subqury
+    where match_winner = 1
+    order by match_id
+    limit 10;
+
+###122) 
 
 
