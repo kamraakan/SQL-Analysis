@@ -312,6 +312,7 @@ create table countries
   
   
 23) FInd employees hired in the last 10 months
+--TIMESTAMPDIFF(unit,datetime_expr1,datetime_expr2) can be used instead of datediff in mysql
 
 select *, datediff(month, HireDate, GETDATE()) as diff
 from emp
@@ -357,11 +358,17 @@ ORDER BY COUNT(*) DESC
                                                     101 1
                                                     201 4
       
-      select  distinct pageid
-      from likes l
-      where user_id in 
-      join likes l on l.userid = u.userid
-      where friendid in (select userid from page
+       select f.userid, l.pageid
+from friends f
+join likes l ON l.userid = f.friendid
+LEFT JOIN likes r ON (r.userid = f.userid AND r.pageid = l.pageid)
+where r.pageid IS NULL;
+
+SELECT f.user_id, l.page_id 
+FROM friend f JOIN like l 
+ON f.friend_id = l.user_id 
+WHERE l.page_id NOT IN (SELECT page_id FROM like                                            
+                                            WHERE user_id = f.user_id)
       
       
       ## https://code.dennyzhang.com/page-recommendations
