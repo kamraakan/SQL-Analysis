@@ -2095,7 +2095,7 @@ from salaries s inner join
 on s.company_id = x.company_id;
 
 ###117) Given two tables as below, write a query to display the comparison result (higher/lower/same) of the average salary of employees in a department to the company's average salary.
- 
+ ````
 
 Table: salary
 | id | employee_id | amount | pay_date   |
@@ -2142,6 +2142,7 @@ The average salary of department '2' is (6000 + 10000)/2 = 8000, which is the av
  
 
 With he same formula for the average salary comparison in February, the result is 'same' since both the department '1' and '2' have the same average salary with the company, which is 7000.
+````
 
 select department_salary.pay_month, department_id,
 case
